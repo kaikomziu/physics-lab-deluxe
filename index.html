@@ -62,9 +62,14 @@
     padding:16px; overflow-y:auto;
   }
   #side-panel h2{font-size:17px; color:var(--accent2); margin-bottom:6px}
+  #side-panel .simple{
+    font-size:13px; color:#e9ffe0; background:rgba(142,227,138,.1); border:1px solid rgba(142,227,138,.3);
+    border-radius:10px; padding:10px 11px; margin-bottom:10px; line-height:1.65;
+  }
+  #side-panel .simple b{color:#8ee38a}
   #side-panel .formula{
-    font-size:12.5px; color:var(--accent); background:rgba(77,210,255,.08); border:1px solid rgba(77,210,255,.25);
-    border-radius:8px; padding:8px 10px; margin-bottom:8px; line-height:1.5;
+    font-size:11.5px; color:var(--accent); background:rgba(77,210,255,.08); border:1px solid rgba(77,210,255,.25);
+    border-radius:8px; padding:7px 10px; margin-bottom:10px; line-height:1.5;
   }
   #side-panel .desc{font-size:12.5px; color:var(--sub); line-height:1.6; margin-bottom:16px}
   .ctrl-row{margin-bottom:14px}
@@ -110,6 +115,7 @@
   <aside id="side-panel">
     <div id="mode-info">
       <h2 id="mode-name"></h2>
+      <div class="simple" id="mode-simple"></div>
       <div class="formula" id="mode-formula"></div>
       <div class="desc" id="mode-desc"></div>
     </div>

@@ -35,6 +35,7 @@
 
   function renderInfo(mode) {
     document.getElementById("mode-name").textContent = mode.name;
+    document.getElementById("mode-simple").textContent = "🌟 " + mode.simple;
     document.getElementById("mode-formula").textContent = mode.formula;
     document.getElementById("mode-desc").textContent = mode.desc;
   }

@@ -64,6 +64,13 @@ const Physics = (() => {
     return entry;
   }
 
+  function removeRod(entry) {
+    if (!entry) return;
+    Render.scene.remove(entry.line);
+    const i = rods.indexOf(entry);
+    if (i >= 0) rods.splice(i, 1);
+  }
+
   function addSpringVisual(a, b, color) {
     const N = 14;
     const positions = new Float32Array((N + 1) * 3);
@@ -159,7 +166,7 @@ const Physics = (() => {
   return {
     world, matDefault, matGround,
     get linked() { return linked; },
-    planarize, addBody, removeBody, addRod, addSpringVisual, addDecor, clearAll, addConstraint,
+    planarize, addBody, removeBody, addRod, removeRod, addSpringVisual, addDecor, clearAll, addConstraint,
     onForce, onStep, step,
   };
 })();
