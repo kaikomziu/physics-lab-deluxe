@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PHYSICS LAB DELUXE - 物理法則プレイグラウンド</title>
+<meta name="description" content="二重振り子・ニュートンのゆりかご・万有引力の軌道・浮力など、9つの物理法則で自由に遊べるサイト。表示は2Dだけど中身は本物の3D物理エンジンで動いている。ドラッグしてつまんで放り投げるだけの簡単操作。">
+<link rel="canonical" href="https://kaikomziu.github.io/physics-lab-deluxe/">
+<meta property="og:title" content="PHYSICS LAB DELUXE - 物理法則プレイグラウンド">
+<meta property="og:description" content="二重振り子・万有引力・浮力など9つの物理法則で遊べるサイト。表示は2D、中身は本物の3D物理エンジン。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kaikomziu.github.io/physics-lab-deluxe/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2244%22 fill=%22%231a2740%22/><circle cx=%2250%22 cy=%2224%22 r=%229%22 fill=%22%23ffd166%22/><circle cx=%2274%22 cy=%2260%22 r=%227%22 fill=%22%234dd2ff%22/><circle cx=%2232%22 cy=%2270%22 r=%226%22 fill=%22%23ff6b6b%22/></svg>">
+<style>
+  :root{
+    --bg1:#0b1220; --bg2:#16233b; --panel:rgba(14,22,38,.92); --ink:#eaf2ff; --sub:#9fb2cc;
+    --accent:#4dd2ff; --accent2:#ffd166; --line:rgba(255,255,255,.1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;
+    background:linear-gradient(180deg,var(--bg1),var(--bg2) 60%, #1c3350);
+    color:var(--ink); overflow:hidden; height:100dvh; display:flex; flex-direction:column;
+  }
+  #topbar{
+    display:flex; align-items:center; gap:14px; padding:10px 16px; background:rgba(8,13,24,.85);
+    border-bottom:1px solid var(--line); z-index:10; flex-wrap:wrap;
+  }
+  #topbar h1{font-size:15px; letter-spacing:.06em; white-space:nowrap; color:var(--accent2)}
+  #topbar h1 small{display:block; font-size:9px; color:var(--sub); font-weight:normal; letter-spacing:.1em}
+  #mode-tabs{display:flex; gap:6px; overflow-x:auto; flex:1; min-width:0; scrollbar-width:thin; padding-bottom:2px}
+  #mode-tabs::-webkit-scrollbar{height:5px}
+  #mode-tabs::-webkit-scrollbar-thumb{background:#3a4a68;border-radius:3px}
+  .tab-btn{
+    white-space:nowrap; padding:7px 12px; border-radius:20px; border:1px solid var(--line);
+    background:rgba(255,255,255,.04); color:var(--sub); font-size:12.5px; cursor:pointer; transition:.15s;
+  }
+  .tab-btn:hover{background:rgba(255,255,255,.09); color:var(--ink)}
+  .tab-btn.active{background:var(--accent); color:#04202c; border-color:var(--accent); font-weight:bold}
+  #global-controls{display:flex; align-items:center; gap:10px; font-size:12px; color:var(--sub)}
+  #global-controls input[type=range]{width:90px; vertical-align:middle}
+  #pause-btn, #panel-toggle{
+    background:rgba(255,255,255,.08); border:1px solid var(--line); color:var(--ink);
+    width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:14px;
+  }
+  #main{flex:1; display:flex; min-height:0; position:relative}
+  #canvas-wrap{flex:1; position:relative; min-width:0; touch-action:none}
+  #canvas-container, #trail-canvas{position:absolute; inset:0; width:100%; height:100%}
+  #trail-canvas{pointer-events:none}
+  #hint{
+    position:absolute; left:50%; bottom:10px; transform:translateX(-50%);
+    background:rgba(0,0,0,.45); padding:5px 12px; border-radius:14px; font-size:11.5px; color:var(--sub);
+    pointer-events:none; white-space:nowrap;
+  }
+  #readout{
+    position:absolute; left:12px; top:12px; background:rgba(0,0,0,.4); padding:6px 10px;
+    border-radius:10px; font-size:12px; color:var(--accent2); pointer-events:none; display:none;
+  }
+  #side-panel{
+    width:300px; flex-shrink:0; background:var(--panel); border-left:1px solid var(--line);
+    padding:16px; overflow-y:auto;
+  }
+  #side-panel h2{font-size:17px; color:var(--accent2); margin-bottom:6px}
+  #side-panel .formula{
+    font-size:12.5px; color:var(--accent); background:rgba(77,210,255,.08); border:1px solid rgba(77,210,255,.25);
+    border-radius:8px; padding:8px 10px; margin-bottom:8px; line-height:1.5;
+  }
+  #side-panel .desc{font-size:12.5px; color:var(--sub); line-height:1.6; margin-bottom:16px}
+  .ctrl-row{margin-bottom:14px}
+  .ctrl-row label{display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink); margin-bottom:5px}
+  .ctrl-row .val{color:var(--accent2); font-variant-numeric:tabular-nums}
+  .ctrl-row input[type=range]{width:100%}
+  #mode-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:6px}
+  .act-btn{
+    flex:1 1 auto; padding:9px 10px; border-radius:10px; border:1px solid var(--line);
+    background:linear-gradient(180deg,#2b3f60,#1c2c46); color:var(--ink); font-size:12.5px; cursor:pointer;
+    white-space:nowrap;
+  }
+  .act-btn:hover{filter:brightness(1.2)}
+  #panel-toggle{display:none}
+  @media (max-width:760px){
+    #side-panel{
+      position:absolute; right:0; top:0; bottom:0; z-index:20; transform:translateX(100%);
+      transition:transform .25s ease; box-shadow:-8px 0 24px rgba(0,0,0,.4); width:82vw; max-width:340px;
+    }
+    #side-panel.open{transform:translateX(0)}
+    #panel-toggle{display:block}
+    #topbar h1 small{display:none}
+  }
+</style>
+</head>
+<body>
+<div id="topbar">
+  <h1>PHYSICS LAB DELUXE<small>表示は2D、中身は本物の3D物理エンジン</small></h1>
+  <div id="mode-tabs"></div>
+  <div id="global-controls">
+    <label>速さ <input id="timescale" type="range" min="0.1" max="2" step="0.1" value="1"></label>
+    <button id="pause-btn" title="一時停止">⏸</button>
+    <button id="panel-toggle" title="設定パネル">☰</button>
+  </div>
+</div>
+<div id="main">
+  <div id="canvas-wrap">
+    <div id="canvas-container"></div>
+    <canvas id="trail-canvas"></canvas>
+    <div id="readout"></div>
+    <div id="hint">ドラッグしてつまみ、離すとその速度で動く</div>
+  </div>
+  <aside id="side-panel">
+    <div id="mode-info">
+      <h2 id="mode-name"></h2>
+      <div class="formula" id="mode-formula"></div>
+      <div class="desc" id="mode-desc"></div>
+    </div>
+    <div id="mode-controls"></div>
+    <div id="mode-buttons"></div>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+<script src="js/version.js"></script>
+<script src="js/render.js"></script>
+<script src="js/physics.js"></script>
+<script src="js/modes.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

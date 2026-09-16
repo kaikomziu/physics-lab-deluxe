@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://kaikomziu.github.io/physics-lab-deluxe/sitemap.xml
